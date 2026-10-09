@@ -1,0 +1,6 @@
+* text=auto
+# the server files are copied to Linux as they are
+deploy/* text eol=lf
+*.sh text eol=lf
+*.webp binary
+*.ico binary

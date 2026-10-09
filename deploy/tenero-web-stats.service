@@ -1,0 +1,13 @@
+[Unit]
+Description=Tenero website: write the network panel from the gamma seed
+After=tenero-gamma.service
+
+[Service]
+Type=oneshot
+User=tenero-gamma
+ExecStart=/opt/tenero-web/tenero-web-stats.sh
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/www/teneronetwork/stats

@@ -1,0 +1,10 @@
+[Unit]
+Description=Tenero website: refresh the network panel every minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

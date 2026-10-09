@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenero</title>
+<meta name="description" content="Tenero: an experimental, unaudited proof-of-work coin with a GPU proof of work and Monero-style privacy (FCMP++ and Carrot). A learning project; nothing on it has any value.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="#"><img src="assets/logo-circle.webp" alt="" width="32" height="32"> Tenero</a>
+    <nav>
+      <a href="#status">Network</a>
+      <a href="#how">How it works</a>
+      <a href="#start">Get started</a>
+      <a href="https://github.com/zad112/Tenero">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Test network <code>gamma</code> · v0.3.0-gamma.1</p>
+    <h1>An experimental proof-of-work coin, built to learn how these systems work.</h1>
+    <p class="lede">A GPU proof of work (<strong>matmulhash v2</strong>) and Monero's newest privacy design,
+      <strong>FCMP++</strong> and <strong>Carrot</strong>, from the first block. Written in Rust, by one person.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/zad112/Tenero/releases">Download (GitHub Releases)</a>
+      <a class="btn" href="https://github.com/zad112/Tenero">Read the source</a>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="warning" role="note">
+    <h2>This is a learning project, not a currency</h2>
+    <ul>
+      <li><strong>Nothing on any Tenero network has any value</strong>, and the test network <strong>can be reset</strong>.</li>
+      <li>It is <strong>unaudited</strong>. The privacy code is unaudited as used here: Monero's FCMP++ libraries (only partly audited),
+        a Carrot written in Rust by this project, and message signatures and payment proofs that are <strong>this project's own construction,
+        reviewed by nobody</strong>.</li>
+      <li>The proof of work is new, <strong>unreviewed</strong>, and <strong>not claimed to be ASIC-proof</strong>.</li>
+      <li>Do not use any of it to hold anything you cannot afford to lose.</li>
+    </ul>
+    <p class="small">Inspired by Monero's design ideas; not affiliated with or endorsed by the Monero project.</p>
+  </div>
+</section>
+
+<section id="status" class="wrap">
+  <h2>The <code>gamma</code> network, as this server sees it</h2>
+  <p class="muted">Read once a minute from the seed node on this server (194.238.27.60). One node's view, not the whole network's.</p>
+  <div class="stats" id="stats">
+    <div class="stat"><span class="label">Height</span><span class="value" id="s-height">–</span></div>
+    <div class="stat"><span class="label">Peers</span><span class="value" id="s-peers">–</span></div>
+    <div class="stat"><span class="label">Waiting payments</span><span class="value" id="s-mempool">–</span></div>
+    <div class="stat"><span class="label">State</span><span class="value" id="s-sync">–</span></div>
+  </div>
+  <p class="muted small" id="s-updated">Waiting for the first reading…</p>
+</section>
+
+<section id="how" class="wrap">
+  <h2>How it works</h2>
+  <div class="grid">
+    <article class="card">
+      <h3>The chain</h3>
+      <p>A block every <strong>60 seconds</strong>, aimed for. The difficulty is re-worked every block from the last 30 (LWMA),
+        and a block's time must be later than its parent's.</p>
+    </article>
+    <article class="card">
+      <h3>Coins</h3>
+      <p>Ticker <strong>TNR</strong>. <strong>20 coins</strong> a block at first, halving every 525,600 blocks (a year),
+        up to 20,000,000, then a tail of 0.5 a block. <strong>No premine</strong>: every coin is mined, the author's included.</p>
+    </article>
+    <article class="card">
+      <h3>Proof of work</h3>
+      <p>Each attempt multiplies a 64 × 8192 matrix of 8-bit integers against columns gathered from a <strong>4 GiB dataset</strong>,
+        rebuilt every 100 blocks. The aim is to be limited by memory bandwidth, which GPUs are built for.
+        <strong>That is an argument, not a proof.</strong></p>
+    </article>
+    <article class="card">
+      <h3>Privacy</h3>
+      <p>A spend proves with <strong>FCMP++</strong> that its coin is one of <em>all</em> outputs on the chain; amounts are hidden with
+        Bulletproofs+. Addresses are <strong>Carrot</strong> (start with <code>TENg</code>), with subaddresses and view-only wallets.
+        On a young chain a spend hides among <strong>very few</strong> outputs.</p>
+    </article>
+  </div>
+  <p class="muted small">Measured on one RTX 5070 Ti: about 45,000 attempts a second. On a CPU, mining <code>gamma</code> is impractical.
+    Everything else is in <a href="https://github.com/zad112/Tenero/blob/main/docs/CONSENSUS.md">the consensus rules</a>,
+    <a href="https://github.com/zad112/Tenero/blob/main/docs/KNOWN_ISSUES.md">the known issues</a> and
+    <a href="https://github.com/zad112/Tenero/blob/main/docs/THREAT_MODEL.md">the threat model</a>.</p>
+</section>
+
+<section id="start" class="wrap">
+  <h2>Get started</h2>
+  <ol class="steps">
+    <li><strong>Download</strong> only from the
+      <a href="https://github.com/zad112/Tenero/releases">GitHub Releases page</a> (a Windows zip and a Linux tar.gz), and check the
+      SHA-256 against <code>SHA256SUMS</code>. Or build it yourself with Rust. Read the release notes first.</li>
+    <li><strong>Run the wallet app</strong>, <code>tenero-wallet-gui</code>. It starts the node and the miner itself. The node needs
+      about <strong>4.3 GiB of free RAM</strong>.</li>
+    <li><strong>Mine</strong> on an NVIDIA GPU (RTX 30 series or newer, a driver for CUDA 13), alone or in the test pool.</li>
+  </ol>
+  <p class="note"><strong>Your antivirus may call it a "coin miner".</strong> That is partly true: it includes a miner, which runs only when you start it.
+    The files are not code-signed. Check the hash, or build from source.</p>
+
+  <div class="grid two">
+    <article class="card">
+      <h3>Seeds (built in)</h3>
+      <p><code>195.26.244.245:38353</code><br><code>194.238.27.60:38353</code></p>
+      <p class="small muted">Two computers, one person. You can add your own with <code>--seed ip:port</code>.</p>
+    </article>
+    <article class="card">
+      <h3>Test pool (built in)</h3>
+      <p><code>195.26.244.245:38335</code></p>
+      <p class="small muted">PPLNS, no fee, pays hourly at 0.1 coins owed. A pool keeps the block rewards and pays by its own rules;
+        nothing makes it pay. One computer, one person.</p>
+    </article>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Talk and notices</h2>
+  <p>Questions, bug reports and hardware numbers: <a href="https://discord.gg/QzfqaGDVcm">the Discord server</a>.
+    <strong>Nothing said there is an official notice.</strong> The only place a "stop mining" notice is posted is the pinned
+    <a href="https://github.com/zad112/Tenero/issues/1">issue #1</a>, and only the author can post there.</p>
+  <p>A permanent main network is <em>planned</em> for 1 November 2026. That is an intention, not a promise: the date can move,
+    and a launch would not make the software finished, reviewed or safe.</p>
+</section>
+
+</main>
+
+<footer class="wrap foot">
+  <p>Tenero is a learning project: unaudited, not for real value. Source under its
+    <a href="https://github.com/zad112/Tenero/blob/main/LICENSE">licence</a> on GitHub. This site sets no cookies and loads nothing from other sites.</p>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>
