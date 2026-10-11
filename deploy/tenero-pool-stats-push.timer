@@ -1,0 +1,10 @@
+[Unit]
+Description=Send the Tenero pool's stats file to the website server every 30 seconds
+
+[Timer]
+OnBootSec=60
+OnUnitActiveSec=30
+AccuracySec=5
+
+[Install]
+WantedBy=timers.target

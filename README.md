@@ -92,3 +92,98 @@ No restart is needed. **Keep the page's facts in step with the coin's [README](h
 ## Licence
 
 BSD 3-Clause, as the coin (`LICENSE`). The logo and banner come from the Tenero repository.
+
+## The pool page (`pool/`, at teneronetwork.com/pool)
+
+The pool runs on the OTHER server (195.26.244.245), which is short of memory, so the page lives here and the pool only writes a
+small JSON file every 30 seconds (`tenero-pool`'s `stats-file`, from the release after 0.4.0-gamma.1). A timer on the pool
+server sends that file here over SSH, with a key that can do **one thing** on this server: replace that file
+(`deploy/receive-pool-stats.sh`). Nothing new listens on the pool server, and nothing here can reach the pool. The file lists
+no addresses: each miner is keyed by the SHA-256 of its address, and the page hashes the address a person types, in the browser.
+
+The owner runs these, one block at a time. **A** is the pool server (`ssh root@195.26.244.245`), **W** this one (`ssh root@194.238.27.60`).
+
+**1. W: copy the site's new files over** (from the PC, in this repository's folder, as for the first setup):
+
+```powershell
+tar -czf $HOME\tenero-web.tgz index.html style.css app.js favicon.ico assets deploy pool
+scp $HOME\tenero-web.tgz root@194.238.27.60:/root/
+```
+
+**2. W: the page, the folder the file lands in, and the receiving user** (it may only run the receive script):
+
+```bash
+rm -rf /root/tenero-web && mkdir -p /root/tenero-web && tar -xzf /root/tenero-web.tgz -C /root/tenero-web
+cp -r /root/tenero-web/index.html /root/tenero-web/pool /var/www/teneronetwork/
+useradd --system --create-home --home-dir /var/lib/tenero-pool-stats --shell /bin/sh tenero-pool-stats
+mkdir -p /var/www/teneronetwork/pool-stats && chown tenero-pool-stats:tenero-pool-stats /var/www/teneronetwork/pool-stats
+install -m 755 /root/tenero-web/deploy/receive-pool-stats.sh /opt/tenero-web/
+ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+```
+
+The last line prints this server's host key fingerprint (`SHA256:...`): keep it for step 4.
+
+**3. A: give the pool its stats file, and a key to send it with** (the pool's settings file gets one line; then the pool restarts):
+
+```bash
+mkdir -p /var/lib/tenero-gamma-pool/stats /var/lib/tenero-gamma-pool/stats-push
+echo "stats-file = /var/lib/tenero-gamma-pool/stats/pool.json" >> /var/lib/tenero-gamma-pool/pool.conf
+ssh-keygen -t ed25519 -N "" -C "tenero pool stats push" -f /var/lib/tenero-gamma-pool/stats-push/id_ed25519
+chown -R tenero-gamma-pool:tenero-gamma-pool /var/lib/tenero-gamma-pool/stats /var/lib/tenero-gamma-pool/stats-push
+systemctl restart tenero-gamma-pool && sleep 40 && head -c 300 /var/lib/tenero-gamma-pool/stats/pool.json; echo
+cat /var/lib/tenero-gamma-pool/stats-push/id_ed25519.pub
+```
+
+The `head` line must start `{"format":1,"ok":true`. (An older `tenero-pool` refuses the new setting: "unknown setting
+`stats-file`". It needs the build with it.) The last line prints the public key, one line starting `ssh-ed25519`: copy it.
+
+**4. A: pin the website server's host key** (so the timer can never be talked into sending to anything else):
+
+```bash
+ssh-keyscan -t ed25519 194.238.27.60 > /var/lib/tenero-gamma-pool/stats-push/known_hosts
+ssh-keygen -lf /var/lib/tenero-gamma-pool/stats-push/known_hosts
+chown tenero-gamma-pool:tenero-gamma-pool /var/lib/tenero-gamma-pool/stats-push/known_hosts
+```
+
+The fingerprint printed must be **the same** as the one step 2 printed on W. If it is not, stop.
+
+**5. W: allow that key to run the receive script and nothing else** (paste the key from step 3 in place of `KEY`):
+
+```bash
+mkdir -p /var/lib/tenero-pool-stats/.ssh
+echo 'restrict,command="/opt/tenero-web/receive-pool-stats.sh" KEY' > /var/lib/tenero-pool-stats/.ssh/authorized_keys
+chown -R tenero-pool-stats:tenero-pool-stats /var/lib/tenero-pool-stats/.ssh
+chmod 700 /var/lib/tenero-pool-stats/.ssh && chmod 600 /var/lib/tenero-pool-stats/.ssh/authorized_keys
+grep -iE "^(AllowUsers|AllowGroups|PasswordAuthentication)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/* 2>/dev/null
+```
+
+If the last line shows an `AllowUsers` line, add `tenero-pool-stats` to it and `systemctl reload ssh`.
+
+**6. A: the timer that sends the file.** First copy the same archive to A, from the PC:
+
+```powershell
+scp $HOME\tenero-web.tgz root@195.26.244.245:/root/
+```
+
+then on A:
+
+```bash
+mkdir -p /root/tenero-web && tar -xzf /root/tenero-web.tgz -C /root/tenero-web
+mkdir -p /opt/tenero-web && install -m 755 /root/tenero-web/deploy/push-pool-stats.sh /opt/tenero-web/
+install -m 644 /root/tenero-web/deploy/tenero-pool-stats-push.service /root/tenero-web/deploy/tenero-pool-stats-push.timer /etc/systemd/system/
+systemctl daemon-reload && systemctl start tenero-pool-stats-push.service && systemctl status tenero-pool-stats-push.service --no-pager | tail -5
+systemctl enable --now tenero-pool-stats-push.timer
+```
+
+**7. W: the file arrived, and Caddy marks it not to be cached:**
+
+```bash
+head -c 200 /var/www/teneronetwork/pool-stats/pool.json; echo
+install -m 644 /root/tenero-web/deploy/Caddyfile /etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
+```
+
+Then open <https://teneronetwork.com/pool/>. If the page says the numbers are more than 3 minutes old, look at A:
+`journalctl -u tenero-pool-stats-push -n 20 --no-pager`.
+
+Preview on the PC: put a `pool-stats/pool.json` in this folder (the format is in the Tenero repository, `docs/RUNNING_A_POOL.md`, "The stats
+file") and run `python -m http.server 8090`, then <http://localhost:8090/pool/>.

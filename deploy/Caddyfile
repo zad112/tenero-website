@@ -14,6 +14,7 @@ teneronetwork.com, www.teneronetwork.com {
 		-Server
 	}
 	header /stats/* Cache-Control "no-store"
+	header /pool-stats/* Cache-Control "no-store"
 
 	log {
 		output file /var/log/caddy/teneronetwork.log {

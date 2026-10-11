@@ -1,0 +1,13 @@
+[Unit]
+Description=Send the Tenero pool's stats file to the website server
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=tenero-gamma-pool
+ExecStart=/opt/tenero-web/push-pool-stats.sh
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+TimeoutStartSec=25

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenero test pool</title>
+<meta name="description" content="The Tenero gamma test pool: miners online, estimated hash rate, blocks found, and your own shares and payouts. A test network; nothing on it has any value.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="../favicon.ico">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="pool.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="../"><img src="../assets/logo-circle.webp" alt="" width="32" height="32"> Tenero</a>
+    <nav>
+      <a href="../">Home</a>
+      <a href="#mine">Your miner</a>
+      <a href="#blocks">Blocks</a>
+      <a href="https://github.com/zad112/Tenero">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero small-hero">
+  <div class="wrap">
+    <p class="eyebrow">Test network <code>gamma</code> · the author's test pool</p>
+    <h1>The test pool</h1>
+    <p class="lede">PPLNS. Connect with <code>195.26.244.245:38335</code> (built into the wallet app and the miner: choose "pool").
+      <strong>A pool keeps the block rewards and pays by its own rules; nothing makes it pay.</strong> One computer, one person, and nothing
+      on <code>gamma</code> has any value.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="stats">
+    <div class="stat"><span class="label">Miners online</span><span class="value" id="p-miners">–</span></div>
+    <div class="stat"><span class="label">Hash rate (estimated)</span><span class="value" id="p-rate">–</span></div>
+    <div class="stat"><span class="label">Blocks in the chain</span><span class="value" id="p-blocks">–</span></div>
+    <div class="stat"><span class="label">Paid in all</span><span class="value" id="p-paid">–</span></div>
+  </div>
+  <p class="muted small" id="p-terms">Waiting for the pool's numbers…</p>
+  <p class="muted small" id="p-updated"></p>
+</section>
+
+<section id="mine" class="wrap">
+  <h2>Your miner</h2>
+  <p class="muted">Type the address you mine to (it starts <code>TENg</code>). It never leaves this page: your browser hashes it and looks
+    the hash up in the pool's public numbers, which list no addresses.</p>
+  <form id="lookup" class="lookup" autocomplete="off">
+    <input id="addr" type="text" spellcheck="false" placeholder="TENg..." aria-label="Your mining address">
+    <button class="btn primary" type="submit">Look up</button>
+  </form>
+  <div id="me" hidden>
+    <div class="stats">
+      <div class="stat"><span class="label">Online now</span><span class="value" id="m-online">–</span></div>
+      <div class="stat"><span class="label">Hash rate (estimated)</span><span class="value" id="m-rate">–</span></div>
+      <div class="stat"><span class="label">Shares, last 10 min</span><span class="value" id="m-shares">–</span></div>
+      <div class="stat"><span class="label">Share of the next block</span><span class="value" id="m-window">–</span></div>
+    </div>
+    <div class="stats three">
+      <div class="stat"><span class="label">Maturing (blocks not 60 deep yet)</span><span class="value" id="m-maturing">–</span></div>
+      <div class="stat"><span class="label">Owed (paid at the next payout)</span><span class="value" id="m-owed">–</span></div>
+      <div class="stat"><span class="label">Paid to you in all</span><span class="value" id="m-paid">–</span></div>
+    </div>
+    <p class="muted small" id="m-last"></p>
+  </div>
+  <p class="note" id="m-none" hidden>The pool has nothing for that address yet. If you just started, wait for your first shares
+    (up to a minute or two). Check that it is the address you gave the miner.</p>
+  <p class="note" id="m-bad" hidden>That is not a <code>gamma</code> address: it should start with <code>TENg</code> and be one long word.</p>
+</section>
+
+<section id="blocks" class="wrap">
+  <h2>Latest blocks found by the pool</h2>
+  <div class="table-wrap">
+    <table class="blocks">
+      <thead><tr><th>Height</th><th>When (UTC)</th><th>Reward</th><th>Status</th></tr></thead>
+      <tbody id="b-rows"><tr><td colspan="4" class="muted">None yet.</td></tr></tbody>
+    </table>
+  </div>
+  <p class="muted small">A block's reward is shared among the miners of the last shares (PPLNS) once the block is 60 deep, then paid
+    at the next payout to everyone owed at least the minimum.</p>
+</section>
+
+<section class="wrap">
+  <h2>How these numbers are made</h2>
+  <ul class="small">
+    <li>The pool writes them every 30 seconds; this page reads them every 30 seconds. They can be a minute old.</li>
+    <li><strong>Hash rates are estimates</strong>: the work of the shares accepted in the last ten minutes, divided by ten minutes.
+      A miner that just started, or that is unlucky, shows less than it does.</li>
+    <li>The pool's public key, which the miner pins, is <code id="p-key">–</code>.</li>
+    <li>Anyone who knows an address can look it up here, as on any public pool.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer class="wrap foot">
+  <p>Tenero is a learning project: unaudited, not for real value. This page sets no cookies, loads nothing from other sites, and sends
+    nothing you type anywhere.</p>
+</footer>
+
+<script src="pool.js" defer></script>
+</body>
+</html>
