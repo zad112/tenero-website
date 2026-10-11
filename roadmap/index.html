@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenero roadmap</title>
+<meta name="description" content="Where Tenero stands and what is planned: the test networks so far, what is built, and what comes next, with no dates promised.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="../favicon.ico">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="../"><img src="../assets/logo-circle.webp" alt="" width="32" height="32"> Tenero</a>
+    <nav>
+      <a href="../#status">Network</a>
+      <a href="../mining/">Mining</a>
+      <a href="../pool/">Pool</a>
+      <a href="../faq/">FAQ</a>
+      <a href="./" aria-current="page">Roadmap</a>
+      <a href="https://github.com/zad112/Tenero">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+<section class="hero small-hero">
+  <div class="wrap">
+    <h1>Where it stands, and what is next</h1>
+    <p class="lede">As of 11 October 2026. <strong>No date on this page is a promise.</strong> "Released" means published for people to try,
+      not finished, reviewed or safe.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>So far</h2>
+  <div class="table-wrap">
+    <table class="data wrap-cells">
+      <thead><tr><th>When</th><th>What</th></tr></thead>
+      <tbody>
+        <tr><td>5–6 Oct 2026</td><td><strong><code>alpha</code></strong> (v0.1.0-alpha.1 to .4): the Rust node, miner and wallet on a first public
+          network, with ring signatures and an interim output scheme that was <em>not</em> Carrot and gave no Monero-style privacy. Closed.</td></tr>
+        <tr><td>7 Oct 2026</td><td><strong><code>beta</code></strong> (v0.2.0-beta.1 to .4): a second seed and a mining pool. A flaw was found in the proof of work
+          (a miner could reuse one memory read for many attempts) and fixed with the <em>gathered</em> attempt. Closed when <code>gamma</code> launched.</td></tr>
+        <tr><td>9 Oct 2026</td><td><strong><code>gamma</code> launched</strong> (v0.3.0-gamma.1): a fresh chain with FCMP++ and Carrot from its first block,
+          the gathered proof of work from block 0, and no premine.</td></tr>
+        <tr><td>11 Oct 2026</td><td><strong>v0.4.0-gamma.1</strong>: Dandelion++ for payments, optional Tor, the 1% miner fee, a contributed AMD miner for Linux
+          (not run by the project), and fixes. Everyone had to upgrade: the network protocol changed. Both seeds became reachable through Tor.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Built</h2>
+  <ul class="status-list">
+    <li class="done">A node (pruned by default), a GPU and CPU miner, a command-line wallet and a wallet app with a window</li>
+    <li class="done">A block explorer, a seed checker, a mining pool and a checker for pools</li>
+    <li class="done">FCMP++ and Carrot from block 0: subaddresses, integrated addresses, view-only wallets, payment requests</li>
+    <li class="done">Message signatures and payment proofs (this project's own construction, reviewed by nobody)</li>
+    <li class="done">Dandelion++ and optional Tor; an encrypted channel between peers</li>
+    <li class="done">About 1,170 automated tests, and the Rust checked bit for bit against an independent Python reference and Monero's own results</li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <h2>Next (no dates)</h2>
+  <ul class="status-list">
+    <li class="plan"><strong>An independent review</strong> of the cryptography (this project's Carrot and signatures first) and of the proof of work,
+      wanted before anything could carry value. <strong>None has happened.</strong></li>
+    <li class="plan"><strong>A longer public test</strong> on <code>gamma</code>.</li>
+    <li class="plan">The seeds' <code>.onion</code> addresses built into the program, used only when you turn Tor on.</li>
+    <li class="plan">A remote wallet, for computers without the memory for a node.</li>
+    <li class="plan"><strong>More seeds run by people other than the author.</strong> Today there are two seeds and one operator.</li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <h2>A main network</h2>
+  <p>The author <strong>plans</strong> to launch a permanent main network on <strong>1 November 2026</strong>: a chain not meant to be reset, built on
+    the <code>gamma</code> rules. <strong>That is an intention, not a promise.</strong> The date can move, and a launch would not make the software finished,
+    reviewed or safe: it would still be unaudited, written by one person, with seeds run by one person. Put nothing into it that you cannot lose.</p>
+  <p class="muted small">The full status, with what is measured and what is worked out: <a href="https://github.com/zad112/Tenero#where-it-stands-2026-10-11">the README</a>.
+    What is known to be wrong: <a href="https://github.com/zad112/Tenero/blob/main/docs/KNOWN_ISSUES.md">the known issues</a>.</p>
+</section>
+
+</main>
+
+<footer class="wrap foot">
+  <p>Tenero is a learning project: unaudited, not for real value. This site sets no cookies and loads nothing from other sites.</p>
+</footer>
+</body>
+</html>

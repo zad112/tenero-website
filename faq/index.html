@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenero FAQ</title>
+<meta name="description" content="Questions about Tenero, an experimental and unaudited proof-of-work coin: value, resets, antivirus warnings, memory, privacy on a young chain, backups.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="../favicon.ico">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="../"><img src="../assets/logo-circle.webp" alt="" width="32" height="32"> Tenero</a>
+    <nav>
+      <a href="../#status">Network</a>
+      <a href="../mining/">Mining</a>
+      <a href="../pool/">Pool</a>
+      <a href="./" aria-current="page">FAQ</a>
+      <a href="../roadmap/">Roadmap</a>
+      <a href="https://github.com/zad112/Tenero">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+<section class="hero small-hero">
+  <div class="wrap">
+    <h1>Questions</h1>
+    <p class="lede">Short answers, with links to the longer ones. If yours is not here, ask on
+      <a href="https://discord.gg/QzfqaGDVcm">the Discord server</a>.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>The basics</h2>
+
+  <details class="faq" open>
+    <summary>Is it worth anything?</summary>
+    <p><strong>No.</strong> Nothing on any Tenero network has any value, and the project sells nothing: no coins, no tokens. It is a learning
+      project by one person, and it is unaudited. Do not buy or sell it, and do not put anything into it that you cannot lose.</p>
+  </details>
+
+  <details class="faq">
+    <summary>Will the chain be reset?</summary>
+    <p><code>gamma</code> is a test network and <strong>can be reset</strong>. If it is, the coins on it are gone. A permanent main network
+      is planned for 1 November 2026, as an intention, not a promise (<a href="../roadmap/">the roadmap</a>). The earlier networks,
+      <code>alpha</code> and <code>beta</code>, are already closed, and nothing moved from them to <code>gamma</code>.</p>
+  </details>
+
+  <details class="faq">
+    <summary>Was there a premine?</summary>
+    <p><strong>No.</strong> The first block of <code>gamma</code> creates no coin. Every coin is mined, the author's included, and a test checks
+      this. The 1% miner fee is a share of mining time, not coins made out of nothing (<a href="../mining/#fee">the fee</a>).</p>
+  </details>
+
+  <details class="faq">
+    <summary>Is it a Monero fork?</summary>
+    <p>No. It is written from scratch in Rust, with its own proof of work. For privacy it uses Monero's newest design, FCMP++ through Monero's own
+      Rust libraries, and Carrot addresses written here from the specification. It is inspired by Monero, and <strong>not affiliated with or endorsed by</strong>
+      the Monero project.</p>
+  </details>
+
+  <details class="faq">
+    <summary>Who runs it?</summary>
+    <p>One person, zad112. The two seeds and the test pool are on two rented servers run by that same person. That is a weakness: the plan
+      wants seeds run by several independent people, and anyone can add their own seed with <code>--seed ip:port</code>.</p>
+  </details>
+</section>
+
+<section class="wrap">
+  <h2>Running it</h2>
+
+  <details class="faq">
+    <summary>Why does my antivirus call it a "coin miner"?</summary>
+    <p>Because it contains one. <code>tenero-miner</code> runs your GPU or CPU at full load, which is what those detectors look for, and the files are
+      not code-signed. <strong>Nothing mines until you start it.</strong> Do not take anyone's word for what a file is: check its SHA-256 against
+      <code>SHA256SUMS</code> (<a href="../#verify">how</a>), or build it from source. If you decide to trust it, exclude only its own folder, and only
+      download from the <a href="https://github.com/zad112/Tenero/releases">GitHub Releases page</a>.</p>
+  </details>
+
+  <details class="faq">
+    <summary>Why does the node need 4.3 GiB of memory?</summary>
+    <p>To check a block's proof of work, a node needs that epoch's 4 GiB dataset, the same one miners use. It holds one at a time and builds the
+      next every 100 blocks, which pauses it for about 3 seconds. The dataset is what ties the proof of work to memory, which is the point of its design.</p>
+  </details>
+
+  <details class="faq">
+    <summary>Which systems does it run on?</summary>
+    <p>Windows 11 (the only Windows tried) and Linux (Ubuntu 22.04 or newer). There are no macOS builds. On Linux, the node, the pool and the
+      command-line wallet have been run by hand; the Linux wallet app and the NVIDIA miner on Linux have not.</p>
+  </details>
+
+  <details class="faq">
+    <summary>Does it work on my graphics card?</summary>
+    <p>NVIDIA RTX 30 series or newer, with a recent driver: yes, but only a 16 GB card has been tried. AMD RX 7000 and 9000 on Linux: contributed and
+      <strong>not run by anyone on the project</strong> in this version. Older cards and macOS: no. <a href="../mining/">The mining guide</a>.</p>
+  </details>
+
+  <details class="faq">
+    <summary>How do I back up my wallet?</summary>
+    <p>Write down the <strong>24 words</strong> the wallet app shows when you create a wallet, on paper, and keep them safe. They are the wallet: anyone
+      who has them has your coins, and with them you can restore it anywhere. The password only locks the wallet file on that computer.</p>
+  </details>
+
+  <details class="faq">
+    <summary>Should I let other nodes connect to me?</summary>
+    <p>It helps the network ("Let other nodes connect to me" in the app's Settings, off by default), because new nodes then do not all depend on the
+      seeds. But it needs a port forwarded on your router, it lets strangers connect to your computer, and the software is unaudited. Your choice.</p>
+  </details>
+</section>
+
+<section class="wrap">
+  <h2>Privacy</h2>
+
+  <details class="faq">
+    <summary>How private is it, really?</summary>
+    <p>Less than the design promises, for now:</p>
+    <ul>
+      <li><strong>A small crowd.</strong> A spend hides among all the outputs on the chain, but a young chain has few, almost all of them block rewards of a
+        few miners. The first spends on <code>gamma</code> hide among very few people, and timing still leaks.</li>
+      <li><strong>Not audited as used.</strong> Monero's FCMP++ libraries are only partly audited and not yet on Monero's main network; this project's Carrot
+        and its glue are not audited at all; its message signatures and payment proofs are its own construction, reviewed by nobody.</li>
+      <li><strong>Where you connect from.</strong> Dandelion++ hides which node a payment started from (in a simulation, a spy on every node named the sender of
+        6 payments in 24, against 23 without it). With few nodes, mostly through the author's two seeds, they still see a lot. Tor hides your IP address.</li>
+    </ul>
+  </details>
+
+  <details class="faq">
+    <summary>How do I use Tor?</summary>
+    <p>Install Tor separately (the Tor Browser, or the Tor Expert Bundle; Tenero contains no Tor code), then in the wallet app's Settings, Tor, type its
+      SOCKS port (<code>127.0.0.1:9150</code> for the Tor Browser, <code>127.0.0.1:9050</code> for the bundle). Tick "Every connection through Tor" if peers
+      must never learn your IP address. It is slower. <a href="https://github.com/zad112/Tenero/blob/main/docs/RUNNING.md">RUNNING.md, "Tor"</a>.</p>
+  </details>
+
+  <details class="faq">
+    <summary>Does this website track me?</summary>
+    <p>No cookies, nothing loaded from other sites, and the server keeps no visitor IP addresses in its log. On the pool page, an address you type is hashed in
+      your browser and never sent anywhere.</p>
+  </details>
+</section>
+
+<section class="wrap">
+  <h2>Problems</h2>
+
+  <details class="faq">
+    <summary>Where are official notices posted?</summary>
+    <p>Only in the pinned <a href="https://github.com/zad112/Tenero/issues/1">issue #1</a>, where only the author can post. Not on Discord, and not on this
+      site. Anything claiming to be a notice anywhere else is not from the project.</p>
+  </details>
+
+  <details class="faq">
+    <summary>I found a security problem.</summary>
+    <p>Please report it privately, through the repository's <a href="https://github.com/zad112/Tenero/security">Security tab</a> ("Report a vulnerability").
+      Anything else: <a href="https://github.com/zad112/Tenero/issues">an issue</a>, or the Discord.</p>
+  </details>
+
+  <details class="faq">
+    <summary>What is known to be wrong?</summary>
+    <p>It is written down, including what nobody has fixed: <a href="https://github.com/zad112/Tenero/blob/main/docs/KNOWN_ISSUES.md">the known issues</a> and
+      <a href="https://github.com/zad112/Tenero/blob/main/docs/THREAT_MODEL.md">the threat model</a>.</p>
+  </details>
+</section>
+
+</main>
+
+<footer class="wrap foot">
+  <p>Tenero is a learning project: unaudited, not for real value. This site sets no cookies and loads nothing from other sites.</p>
+</footer>
+</body>
+</html>

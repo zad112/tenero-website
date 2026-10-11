@@ -13,12 +13,13 @@
 
 <header class="top">
   <div class="wrap top-row">
-    <a class="brand" href="#"><img src="assets/logo-circle.webp" alt="" width="32" height="32"> Tenero</a>
+    <a class="brand" href="./"><img src="assets/logo-circle.webp" alt="" width="32" height="32"> Tenero</a>
     <nav>
       <a href="#status">Network</a>
-      <a href="#how">How it works</a>
-      <a href="#start">Get started</a>
+      <a href="mining/">Mining</a>
       <a href="pool/">Pool</a>
+      <a href="faq/">FAQ</a>
+      <a href="roadmap/">Roadmap</a>
       <a href="https://github.com/zad112/Tenero">GitHub</a>
     </nav>
   </div>
@@ -34,6 +35,7 @@
       <strong>FCMP++</strong> and <strong>Carrot</strong>, from the first block. Written in Rust, by one person.</p>
     <div class="cta">
       <a class="btn primary" href="https://github.com/zad112/Tenero/releases">Download (GitHub Releases)</a>
+      <a class="btn" href="mining/">How to mine</a>
       <a class="btn" href="https://github.com/zad112/Tenero">Read the source</a>
     </div>
   </div>
@@ -57,18 +59,48 @@
 <section id="status" class="wrap">
   <h2>The <code>gamma</code> network, as this server sees it</h2>
   <p class="muted">Read once a minute from the seed node on this server (194.238.27.60). One node's view, not the whole network's.</p>
-  <div class="stats" id="stats">
+  <div class="stats">
     <div class="stat"><span class="label">Height</span><span class="value" id="s-height">–</span></div>
     <div class="stat"><span class="label">Peers</span><span class="value" id="s-peers">–</span></div>
     <div class="stat"><span class="label">Waiting payments</span><span class="value" id="s-mempool">–</span></div>
     <div class="stat"><span class="label">State</span><span class="value" id="s-sync">–</span></div>
+    <div class="stat"><span class="label">Difficulty (attempts a block)</span><span class="value" id="s-diff">–</span></div>
+    <div class="stat"><span class="label">Hash rate (estimated)</span><span class="value" id="s-rate">–</span></div>
+    <div class="stat"><span class="label">Mined so far</span><span class="value" id="s-emitted">–</span></div>
+    <div class="stat"><span class="label">Block reward</span><span class="value" id="s-reward">–</span></div>
   </div>
   <p class="muted small" id="s-updated">Waiting for the first reading…</p>
+  <p class="muted small" id="s-rate-note"></p>
+
+  <div class="split">
+    <div>
+      <h3>Latest blocks</h3>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Height</th><th>When (UTC)</th><th>Payments</th><th>Weight</th><th>Paid to its miner</th></tr></thead>
+          <tbody id="s-blocks"><tr><td colspan="5" class="muted">No reading yet.</td></tr></tbody>
+        </table>
+      </div>
+      <p class="muted small">"Payments" counts the transactions besides the block reward. A block marked <span class="tag">pool</span> was
+        found by the test pool, as the pool reports it. Block times are written by the miners of the blocks.</p>
+    </div>
+    <aside class="card" id="pool-card">
+      <h3>The test pool</h3>
+      <dl class="facts">
+        <dt>Miners online</dt><dd id="ps-miners">–</dd>
+        <dt>Hash rate (estimated)</dt><dd id="ps-rate">–</dd>
+        <dt>Blocks in the chain</dt><dd id="ps-blocks">–</dd>
+        <dt>Next payout</dt><dd id="ps-next">–</dd>
+      </dl>
+      <p class="muted small" id="ps-updated"></p>
+      <p class="small"><a href="pool/">The pool's numbers, and yours</a></p>
+    </aside>
+  </div>
 </section>
 
 <section id="how" class="wrap">
   <h2>How it works</h2>
-  <div class="grid">
+  <div class="grid three">
     <article class="card">
       <h3>The chain</h3>
       <p>A block every <strong>60 seconds</strong>, aimed for. The difficulty is re-worked every block from the last 30 (LWMA),
@@ -86,13 +118,24 @@
         <strong>That is an argument, not a proof.</strong></p>
     </article>
     <article class="card">
-      <h3>Privacy</h3>
+      <h3>What you pay</h3>
       <p>A spend proves with <strong>FCMP++</strong> that its coin is one of <em>all</em> outputs on the chain; amounts are hidden with
-        Bulletproofs+. Addresses are <strong>Carrot</strong> (start with <code>TENg</code>), with subaddresses and view-only wallets.
+        Bulletproofs+. Addresses are <strong>Carrot</strong> (they start <code>TENg</code>), with subaddresses and view-only wallets.
         On a young chain a spend hides among <strong>very few</strong> outputs.</p>
     </article>
+    <article class="card">
+      <h3>Where you connect from</h3>
+      <p>Since 0.4.0 a new payment travels a short random path of peers before it is announced (<strong>Dandelion++</strong>, Monero's
+        design). <strong>Tor</strong> is optional, through a separate Tor program. With few nodes, the author's two seeds still see a lot.</p>
+    </article>
+    <article class="card">
+      <h3>The miner's fee</h3>
+      <p>The project's miner gives <strong>1% of its time</strong> (one minute in a hundred) to the author of the backend it uses:
+        NVIDIA to the project's author, AMD to its contributor. The CPU has none. It is always shown and cannot be turned off.
+        <a href="mining/#fee">The addresses</a>.</p>
+    </article>
   </div>
-  <p class="muted small">Measured on one RTX 5070 Ti: about 45,000 attempts a second. On a CPU, mining <code>gamma</code> is impractical.
+  <p class="muted small">Measured on one RTX 5070 Ti: about 43,000 to 45,000 attempts a second. On a CPU, mining <code>gamma</code> is impractical.
     Everything else is in <a href="https://github.com/zad112/Tenero/blob/main/docs/CONSENSUS.md">the consensus rules</a>,
     <a href="https://github.com/zad112/Tenero/blob/main/docs/KNOWN_ISSUES.md">the known issues</a> and
     <a href="https://github.com/zad112/Tenero/blob/main/docs/THREAT_MODEL.md">the threat model</a>.</p>
@@ -101,46 +144,78 @@
 <section id="start" class="wrap">
   <h2>Get started</h2>
   <ol class="steps">
-    <li><strong>Download</strong> only from the
-      <a href="https://github.com/zad112/Tenero/releases">GitHub Releases page</a> (a Windows zip and a Linux tar.gz), and check the
-      SHA-256 against <code>SHA256SUMS</code>. Or build it yourself with Rust. Read the release notes first.</li>
+    <li><strong>Download</strong> only from the <a href="https://github.com/zad112/Tenero/releases">GitHub Releases page</a>:
+      a Windows zip, a Linux tar.gz, and a Linux AMD tar.gz for AMD cards. <strong>Check the download</strong> (below), or build it
+      yourself with Rust. Read the release notes first.</li>
     <li><strong>Run the wallet app</strong>, <code>tenero-wallet-gui</code>. It starts the node and the miner itself. The node needs
-      about <strong>4.3 GiB of free RAM</strong>.</li>
-    <li><strong>Mine</strong> on an NVIDIA GPU (RTX 30 series or newer, a driver for CUDA 13), alone or in the test pool.</li>
+      about <strong>4.3 GiB of free RAM</strong>. Everyone on <code>gamma</code> needs 0.4.0: older programs find no peers.</li>
+    <li><strong>Mine</strong> on an NVIDIA GPU (RTX 30 series or newer, a driver for CUDA 13), alone or in the test pool.
+      AMD RX 7000 and 9000 cards work on Linux only, with ROCm 7, and <strong>nobody on the project has run that miner</strong>.
+      <a href="mining/">The mining guide</a>.</li>
   </ol>
   <p class="note"><strong>Your antivirus may call it a "coin miner".</strong> That is partly true: it includes a miner, which runs only when you start it.
     The files are not code-signed. Check the hash, or build from source.</p>
+
+  <div class="card verify" id="verify">
+    <h3>Check a download</h3>
+    <p class="small">Download <code>SHA256SUMS</code> from the same release, put it next to the file, and compare. The two must match exactly.</p>
+    <p class="small"><strong>Windows</strong> (PowerShell, in the folder with the files):</p>
+    <pre><code>Get-FileHash .\tenero-0.4.0-gamma.1-windows-x64.zip -Algorithm SHA256
+Select-String windows-x64 .\SHA256SUMS</code></pre>
+    <p class="small"><strong>Linux</strong>:</p>
+    <pre><code>sha256sum -c SHA256SUMS --ignore-missing</code></pre>
+    <p class="muted small">This shows that the file is the one the release lists. It does not show that the release is safe: nothing here is audited.</p>
+  </div>
 
   <div class="grid two">
     <article class="card">
       <h3>Seeds (built in)</h3>
       <p><code>195.26.244.245:38353</code><br><code>194.238.27.60:38353</code></p>
-      <p class="small muted">Two computers, one person. You can add your own with <code>--seed ip:port</code>.</p>
+      <p class="small">Through Tor, the same two machines:</p>
+      <p class="small"><code>p56vt5wui4cujc6fsj3vkak3hxsfjzyqnyhl27saf5hxsvsv6wr4buqd.onion:38353</code><br>
+        <code>7nsdn57rc7rjjhdtf6pksmkmnwybtec7eurj3cyt2y3jzxxqxeulunad.onion:38353</code></p>
+      <p class="small muted">Two computers, one person. The <code>.onion</code> ones are not built into 0.4.0: add them as
+        <code>seed = ...</code> with a Tor <code>proxy</code>. You can add your own seeds with <code>--seed ip:port</code>.</p>
     </article>
     <article class="card">
       <h3>Test pool (built in)</h3>
       <p><code>195.26.244.245:38335</code></p>
-      <p class="small muted">PPLNS, no fee, pays hourly at 0.1 coins owed. A pool keeps the block rewards and pays by its own rules;
+      <p class="small muted">PPLNS, no pool fee, pays hourly at 0.1 coins owed. A pool keeps the block rewards and pays by its own rules;
         nothing makes it pay. One computer, one person.</p>
       <p class="small"><a href="pool/">The pool's numbers, and yours</a></p>
     </article>
   </div>
 </section>
 
+<section id="credits" class="wrap">
+  <h2>Thanks</h2>
+  <ul class="plain">
+    <li><strong>qcvibes1</strong> wrote the AMD miner (HIP, for RX 7000 and 9000 cards on Linux).</li>
+    <li><strong>gemsandgems</strong> fixed combine and sweep on a brand-new chain (its first blocks).</li>
+    <li>The privacy is <strong>Monero's work</strong>: FCMP++ and Bulletproofs+ through monero-oxide, and the Carrot specification.
+      This project only uses them, and is not endorsed by Monero.</li>
+    <li>Everyone who mined on the test networks and reported what broke.</li>
+  </ul>
+  <p class="small">The seed servers are rented. If you want to chip in towards that bill, there is
+    <a href="https://buymeacoffee.com/zad112">a Buy Me a Coffee page</a>. <strong>It is a gift towards a server bill, and nothing else:</strong>
+    it buys no coins, no say in the project, no support and no early access. Nothing on any Tenero network has any value, and none of this is an investment.</p>
+</section>
+
 <section class="wrap">
   <h2>Talk and notices</h2>
   <p>Questions, bug reports and hardware numbers: <a href="https://discord.gg/QzfqaGDVcm">the Discord server</a>.
-    <strong>Nothing said there is an official notice.</strong> The only place a "stop mining" notice is posted is the pinned
+    <strong>Nothing said there, or on this site, is an official notice.</strong> The only place a "stop mining" notice is posted is the pinned
     <a href="https://github.com/zad112/Tenero/issues/1">issue #1</a>, and only the author can post there.</p>
   <p>A permanent main network is <em>planned</em> for 1 November 2026. That is an intention, not a promise: the date can move,
-    and a launch would not make the software finished, reviewed or safe.</p>
+    and a launch would not make the software finished, reviewed or safe. <a href="roadmap/">The roadmap</a>.</p>
 </section>
 
 </main>
 
 <footer class="wrap foot">
   <p>Tenero is a learning project: unaudited, not for real value. Source under its
-    <a href="https://github.com/zad112/Tenero/blob/main/LICENSE">licence</a> on GitHub. This site sets no cookies and loads nothing from other sites.</p>
+    <a href="https://github.com/zad112/Tenero/blob/main/LICENSE">licence</a> on GitHub; this site's source is
+    <a href="https://github.com/zad112/tenero-website">tenero-website</a>. This site sets no cookies and loads nothing from other sites.</p>
 </footer>
 
 <script src="app.js" defer></script>

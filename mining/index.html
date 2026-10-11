@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mining Tenero</title>
+<meta name="description" content="How to mine on Tenero's gamma test network: hardware, the wallet app, the command-line miner, the test pool, and the 1% miner fee. A test network; nothing on it has any value.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="../favicon.ico">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="../"><img src="../assets/logo-circle.webp" alt="" width="32" height="32"> Tenero</a>
+    <nav>
+      <a href="../#status">Network</a>
+      <a href="./" aria-current="page">Mining</a>
+      <a href="../pool/">Pool</a>
+      <a href="../faq/">FAQ</a>
+      <a href="../roadmap/">Roadmap</a>
+      <a href="https://github.com/zad112/Tenero">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+
+<section class="hero small-hero">
+  <div class="wrap">
+    <p class="eyebrow">Test network <code>gamma</code> · v0.4.0-gamma.1</p>
+    <h1>Mining</h1>
+    <p class="lede">What you need, how to start, and what the miner gives away. <strong>Nothing you mine on <code>gamma</code> has any value,
+      and the network can be reset.</strong> Mining runs your GPU at full load: you pay for the electricity.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>What you need</h2>
+  <div class="table-wrap">
+    <table class="data wrap-cells">
+      <thead><tr><th>To mine with</th><th>You need</th><th>Known to work?</th></tr></thead>
+      <tbody>
+        <tr><td><strong>An NVIDIA GPU</strong></td>
+          <td>RTX 30 series or newer (compute capability 8.0+), a driver for CUDA 13 (R580 or newer). The CUDA Toolkit is <em>not</em> needed.
+            The 4 GiB dataset lives in video memory.</td>
+          <td>Yes, on the author's RTX 5070 Ti (16 GB). Whether an 8 GB card works is <strong>untested</strong>.</td></tr>
+        <tr><td><strong>An AMD GPU</strong></td>
+          <td>Linux only: an RX 7000 (RDNA3) or RX 9000 (RDNA4) card, AMD's ROCm 7, and the <strong>Linux AMD package</strong>
+            (<code>…-linux-x64-amd</code>). About 5 GiB of video memory.</td>
+          <td><strong>Not run by anyone on the project</strong> in this version. Contributed by qcvibes1, who checked it bit for bit on their own RX 7000 card, before the move to ROCm 7.
+            <a href="https://github.com/zad112/Tenero/blob/main/docs/AMD_MINING.md">Card by card</a>.</td></tr>
+        <tr><td>A CPU</td>
+          <td>Nothing extra, but about 9 GiB of RAM with a node (the miner builds its own dataset).</td>
+          <td>Works, but <strong>impractical</strong> on <code>gamma</code>: far too slow next to a GPU.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">For a sense of scale, <strong>measured</strong> on one RTX 5070 Ti: about 43,000 to 45,000 attempts a second, limited by the
+    card's memory bandwidth. Nothing is claimed about any other card. The difficulty follows the miners, so how often you find a block
+    depends on everyone else (the home page shows the current difficulty and an estimated network hash rate).</p>
+</section>
+
+<section class="wrap">
+  <h2>Alone, or in the pool</h2>
+  <div class="grid two">
+    <article class="card">
+      <h3>Alone, on your own node</h3>
+      <p>Every block you find pays you the whole reward (20 coins now), and nobody stands between you and it. You need a node
+        (about 4.3 GiB of RAM, besides the miner). With little hash rate you may wait a long time for a block.</p>
+    </article>
+    <article class="card">
+      <h3>In the test pool</h3>
+      <p>Many miners share the rewards (PPLNS), so payouts come steadily but smaller. <strong>No node is needed to mine</strong>, but you need
+        one to see and spend what the pool pays. <strong>A pool keeps the block rewards and pays by its own rules; nothing makes it pay.</strong>
+        It also sees your address and your IP address. <a href="../pool/">The pool's numbers</a>.</p>
+    </article>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Mining with the wallet app</h2>
+  <ol class="steps">
+    <li>Download the release for your system from the <a href="https://github.com/zad112/Tenero/releases">Releases page</a> and
+      <a href="../#verify">check it</a>. For an AMD card, use the Linux AMD package.</li>
+    <li>Start <code>tenero-wallet-gui</code>, create a wallet, and <strong>write down the 24 words</strong>. They are the wallet.</li>
+    <li>For mining alone, start the node on the <strong>Node</strong> tab and wait until it is in sync. For the pool, you can skip this.</li>
+    <li>On the <strong>Mining</strong> tab choose <strong>"On a pool"</strong> or <strong>"Alone, on my own node"</strong>, then press <strong>Start</strong>.
+      For AMD: Settings, Mining, Backend, <strong>amd</strong>.</li>
+  </ol>
+  <p class="muted small">The tab shows the rate over 10 s, 60 s, 15 min and the whole run, the card's temperature, power and clocks, and the blocks
+    (or shares) found. Nothing mines until you press Start, and it stops when you lock the wallet or stop the node.</p>
+</section>
+
+<section class="wrap">
+  <h2>Mining from the command line</h2>
+  <p>For the test pool, with no node (Windows; on Linux, <code>./tenero-miner</code>):</p>
+  <pre><code>.\tenero-miner.exe --pool default --network gamma --address TENg... --backend gpu</code></pre>
+  <p>Alone, on a node running on the same computer:</p>
+  <pre><code>.\tenero-miner.exe --data YOUR-NODE-FOLDER --address TENg... --backend gpu</code></pre>
+  <ul class="plain small">
+    <li><code>--address</code> is your wallet's <strong>main</strong> address (it starts <code>TENg</code>), not a subaddress.</li>
+    <li><code>--backend</code> is <code>gpu</code> (NVIDIA), <code>amd</code> (the Linux AMD package only) or <code>cpu</code>.</li>
+    <li><code>--pool default</code> is the test pool, its key built in and <strong>pinned</strong>: a machine pretending to be the pool is refused.</li>
+    <li>For the pool through Tor, add <code>--proxy 127.0.0.1:9050</code> (a Tor program must be running).</li>
+    <li>Everything else: <code>tenero-miner help</code>, and <a href="https://github.com/zad112/Tenero/blob/main/docs/RUNNING.md">RUNNING.md</a>.</li>
+  </ul>
+</section>
+
+<section class="wrap" id="fee">
+  <h2>The miner's fee: 1% of the mining time</h2>
+  <p>Since 0.4.0 the project's miner works <strong>one minute in every hundred</strong> for the author of the backend you use, instead of for you.
+    It was agreed with the community before it shipped.</p>
+  <div class="table-wrap">
+    <table class="data wrap-cells">
+      <thead><tr><th>Backend</th><th>The fee goes to</th><th>Address (<code>gamma</code>)</th></tr></thead>
+      <tbody>
+        <tr><td><code>gpu</code> (NVIDIA)</td><td>the project's author (zad112)</td>
+          <td class="addr">TENgJhGzz31cRRVv9Xp5BEecw9Kxzf4qGiSCqYBH4JtFMfarVL2VvkbYFCPSGKfss7746sr65PuBqRoNWpShiR1yaNpE7jvrJTb</td></tr>
+        <tr><td><code>amd</code></td><td>the AMD backend's author (qcvibes1)</td>
+          <td class="addr">TENgJhA3h9GDHeXx3PVt7dT7Ef46C1rZ5VJWbohaourDDBNPGji6me2XgrmmXQ66vSgtnDGVkBpGyMR2sXdYcFaAedbkphU1sSL</td></tr>
+        <tr><td><code>cpu</code></td><td colspan="2">no fee</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="plain">
+    <li><strong>How:</strong> alone, the block template of a fee minute pays the fee's address; in a pool, the miner logs in with the fee's
+      address for that minute. The first fee minute falls at a random point in the first 100 minutes. It is fair on average, not block by block.</li>
+    <li><strong>Always shown:</strong> the miner's banner, its log and the screen say when a fee minute starts and ends, and a block found in one is
+      shown as the fee's, not counted as yours. The app shows it on the Mining tab and in Settings.</li>
+    <li><strong>Fixed:</strong> there is no setting to turn it off. The code is open
+      (<a href="https://github.com/zad112/Tenero/blob/main/crates/tenero-miner/src/fee.rs">fee.rs</a>,
+      <a href="https://github.com/zad112/Tenero/blob/main/crates/tenero-app/src/mining_fee.rs">the addresses</a>), and anyone may build a miner without it.</li>
+    <li><strong>The test pool charges no fee of its own.</strong> The fee is the miner's, not the pool's, and consensus is not touched: a fee block is an ordinary block.</li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <h2>If something goes wrong</h2>
+  <ul class="plain">
+    <li><strong>Antivirus:</strong> it may call the miner a "coin miner". It is one. Check the download's hash, and if you decide to trust it,
+      exclude only its own folder.</li>
+    <li><strong>A block "refused":</strong> the node checks every block completely. A refused block is wasted work, never a bad block in the chain.
+      With AMD, report it: it may mean that card computes something wrongly.</li>
+    <li><strong>"Lost a race":</strong> someone else's block for the same height arrived first. It happens; it is not a fault.</li>
+    <li><strong>A stop notice</strong> is only ever posted in <a href="https://github.com/zad112/Tenero/issues/1">issue #1</a>. Questions and bug reports:
+      <a href="https://discord.gg/QzfqaGDVcm">the Discord server</a>.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer class="wrap foot">
+  <p>Tenero is a learning project: unaudited, not for real value. This site sets no cookies and loads nothing from other sites.</p>
+</footer>
+</body>
+</html>

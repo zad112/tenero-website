@@ -2,46 +2,60 @@
 
 The website of [Tenero](https://github.com/zad112/Tenero), **teneronetwork.com**: an experimental, unaudited proof-of-work coin (a learning project; nothing on it has any value). The coin's code lives in that repository; this one holds only the site.
 
-A static page (`index.html`, `style.css`, `app.js`, `assets/`) served by **Caddy** on the Contabo server (194.238.27.60), next to the
-`gamma` seed. Caddy gets and renews the HTTPS certificate by itself. The page loads nothing from other sites and sets no cookies;
-Caddy's log keeps no visitor IP addresses.
+Static pages served by **Caddy** on the Contabo server (194.238.27.60), next to the `gamma` seed:
 
-**The network panel** reads `stats/stats.json`, which `deploy/tenero-web-stats.sh` writes once a minute from `tenerod status`.
-That script runs as the node's user (`tenero-gamma`), because it needs the control cookie; **the web server never sees the cookie**
-(anything holding it can stop the node), only the JSON. If the node is down the page says "no reading" instead of old numbers.
+| Path | What |
+|---|---|
+| `index.html`, `app.js` | the home page: the network panel, the latest blocks, a pool summary, how it works, getting started, thanks |
+| `mining/` | the mining guide, with the 1% miner fee and its addresses |
+| `pool/` | the test pool's numbers, and a miner's own (below, "The pool page") |
+| `faq/`, `roadmap/` | questions; where it stands and what is next |
+| `style.css`, `assets/`, `favicon.ico` | shared by every page |
+| `deploy/` | the server's files: the Caddyfile, the panel's reader and its timer, the pool-stats transfer |
+| `tests/` | the panel reader's tests |
 
-Preview on the PC: `python -m http.server 8090` in this folder, then <http://localhost:8090> (the panel stays empty without a `stats/stats.json`).
+Caddy gets and renews the HTTPS certificate by itself. The pages load nothing from other sites and set no cookies; Caddy's log
+keeps no visitor IP addresses. **The pages repeat facts from the coin's [README](https://github.com/zad112/Tenero/blob/main/README.md)**
+(the version, the downloads, the seeds, the pool, the fee and its addresses, the warnings): when those change, change them here too.
 
-## Putting it on the server (the owner runs these; one step at a time)
+**The network panel** reads `stats/stats.json`, which `deploy/tenero-web-stats.py` writes once a minute. It asks the seed through
+the node's own control protocol (the Tenero repository, `docs/CONTROL_PROTOCOL.md`) for `info`, `chain_stats` and `headers`:
+**read requests only, and nothing on the node changes**. It runs as the node's user (`tenero-gamma`), because it needs the control
+cookie, and **the web server never sees the cookie** (anything holding it can stop the node), only the JSON. Its service may
+reach nothing but this machine. Python's standard library only. If the node is down, or answers something the reader does not
+understand (a future protocol change), it writes `{"ok": false}` and the page says "no reading" instead of showing old or wrong
+numbers; the reason goes to the journal (`journalctl -u tenero-web-stats`).
 
-**0. Wait for the RAM upgrade to finish**, then check that the seed is up:
+What it shows: height, peers, waiting payments, sync state, the difficulty (`2^256 / target`, attempts a block), an **estimated**
+hash rate (the work of the last 30 blocks over the time their timestamps say they took, as the block explorer does), coins mined
+so far, the block reward, and the latest 20 blocks. The pool card reads `pool-stats/pool.json` (below).
 
-```bash
-free -h
-systemctl status tenero-gamma --no-pager
-```
+**Tests:** `python -m unittest discover -s tests` checks the reader against the protocol's golden vectors
+(`../Tenero/tests/vectors/control.json`, from a Tenero checkout next to this one) and against a stand-in node. Checked on
+2026-10-11 against a real `tenerod` too (a test-network node on the PC: the same numbers as `tenerod status`).
+
+**Preview on the PC:** `python -m http.server 8090` in this folder, then <http://localhost:8090>. The panels stay empty without
+`stats/stats.json` and `pool-stats/pool.json` (both git-ignored; copy the live ones from the site to see real numbers).
+
+## Putting it on the server (the first time; the owner runs these, one step at a time)
 
 **1. On the PC (PowerShell, in this repository's folder): pack the site and copy it over.**
 
 ```powershell
-tar -czf $HOME\tenero-web.tgz index.html style.css app.js favicon.ico assets deploy
+tar -czf $HOME\tenero-web.tgz index.html style.css app.js favicon.ico assets deploy pool mining faq roadmap
 scp $HOME\tenero-web.tgz root@194.238.27.60:/root/
 ```
 
-**2. Check the names point at the server** (both should print `194.238.27.60`; if `www` prints nothing, delete
-`, www.teneronetwork.com` from the Caddyfile in step 6, or Caddy will keep failing to get a certificate for it):
+**2. Check the names point at the server** (both should print `194.238.27.60`; the records are in Contabo's DNS Zone Management):
 
 ```bash
 getent hosts teneronetwork.com; getent hosts www.teneronetwork.com
 ```
 
-**3. Install Caddy from Caddy's own package repository** (Caddy's documented steps for Ubuntu; it then updates with `apt upgrade`):
+**3. Install Caddy.** Ubuntu's own package (Caddy 2.6.2 on Ubuntu 24.04, updated with `apt upgrade`). Caddy's own package
+repository answered `402 Payment Required` on 2026-10-09, so it was not used.
 
 ```bash
-apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' > /etc/apt/sources.list.d/caddy-stable.list
-chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg /etc/apt/sources.list.d/caddy-stable.list
 apt update && apt install -y caddy
 ```
 
@@ -56,38 +70,51 @@ ufw allow 80/tcp && ufw allow 443/tcp && ufw status
 ```bash
 mkdir -p /root/tenero-web && tar -xzf /root/tenero-web.tgz -C /root/tenero-web
 mkdir -p /var/www/teneronetwork/stats /opt/tenero-web
-cp -r /root/tenero-web/index.html /root/tenero-web/style.css /root/tenero-web/app.js /root/tenero-web/favicon.ico /root/tenero-web/assets /var/www/teneronetwork/
+cd /root/tenero-web && cp -r index.html style.css app.js favicon.ico assets pool mining faq roadmap /var/www/teneronetwork/ && cd
 chown tenero-gamma:tenero-gamma /var/www/teneronetwork/stats
-install -m 755 /root/tenero-web/deploy/tenero-web-stats.sh /opt/tenero-web/
+install -m 755 /root/tenero-web/deploy/tenero-web-stats.py /opt/tenero-web/
 install -m 644 /root/tenero-web/deploy/tenero-web-stats.service /root/tenero-web/deploy/tenero-web-stats.timer /etc/systemd/system/
 systemctl daemon-reload && systemctl enable --now tenero-web-stats.timer
-systemctl start tenero-web-stats.service && cat /var/www/teneronetwork/stats/stats.json
+systemctl start tenero-web-stats.service; head -c 300 /var/www/teneronetwork/stats/stats.json; echo
 ```
 
-The last line should print `{"ok":true,"network":"gamma","height":...}`. `"ok":false` means `tenerod status` failed: try it by hand
-(`/opt/tenero-gamma/tenerod status --data /var/lib/tenero-gamma/data --control 127.0.0.1:38352`).
+The last line should print `{"ok":true,"format":2,...}`. `"ok":false` means the node did not answer: `journalctl -u tenero-web-stats -n 20 --no-pager` says why.
 
 **6. Give Caddy the site:**
 
 ```bash
 cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.default
 install -m 644 /root/tenero-web/deploy/Caddyfile /etc/caddy/Caddyfile
-caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
+caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile && systemctl reload caddy
 journalctl -u caddy -n 30 --no-pager
 ```
 
 The log should say `certificate obtained successfully` within a minute. Then open <https://teneronetwork.com>.
 
-## Updating the page
+## Updating the pages
 
 Repeat step 1, then on the server:
 
 ```bash
 rm -rf /root/tenero-web && mkdir -p /root/tenero-web && tar -xzf /root/tenero-web.tgz -C /root/tenero-web
-cp -r /root/tenero-web/index.html /root/tenero-web/style.css /root/tenero-web/app.js /root/tenero-web/favicon.ico /root/tenero-web/assets /var/www/teneronetwork/
+cd /root/tenero-web && cp -r index.html style.css app.js favicon.ico assets pool mining faq roadmap /var/www/teneronetwork/ && cd
 ```
 
-No restart is needed. **Keep the page's facts in step with the coin's [README](https://github.com/zad112/Tenero/blob/main/README.md)** (version, seeds, pool, warnings): it is a second copy of them.
+No restart is needed. If `deploy/` changed, install the changed files as in step 5 (and `systemctl daemon-reload` for a changed unit).
+
+### From the shell-script panel to the Python reader (2026-10-11)
+
+The first panel (`tenero-web-stats.sh`, which parsed `tenerod status`) is replaced by `tenero-web-stats.py`. After the update above:
+
+```bash
+python3 --version
+install -m 755 /root/tenero-web/deploy/tenero-web-stats.py /opt/tenero-web/
+install -m 644 /root/tenero-web/deploy/tenero-web-stats.service /etc/systemd/system/
+systemctl daemon-reload && systemctl start tenero-web-stats.service; head -c 300 /var/www/teneronetwork/stats/stats.json; echo
+rm /opt/tenero-web/tenero-web-stats.sh
+```
+
+The timer stays as it is. The home page reads only the new format (`"format":2`): until the reader has run once it says "no reading".
 
 ## Licence
 
